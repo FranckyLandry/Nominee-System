@@ -1,0 +1,75 @@
+
+/**
+*
+setting the image as back fix background image
+*/
+body{ 
+  margin: 0 auto;
+  //background-color: honeydew;
+  background-image: url("../images/Login page.png");
+  background-repeat: no-repeat;
+  background-size: 100% 720px;
+    
+}
+
+/*
+*this the form login class setting the form in the middle of the page and and chossing a background clor
+**/
+.container{
+    width: 400px;
+    height: 300px;
+    text-align: center;
+    background-color: #fff; /*#009999;rgba(52,73,94,0.7);*/
+    border-radius: 40px;
+    margin: 0 auto;
+    margin-top: 150px;   
+}
+/*
+.container img{
+    width: 200px;
+    height: 120px;
+    margin-top: -60px;
+    margin-bottom: 30px;
+}
+*/
+
+/*
+* input class setting the font of the input to the form and giving a back ground color of the texboxes
+*/
+
+input{
+    height: 45px;
+    width: 300px;
+    font-size: 12px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    padding-left: 30px;
+}
+
+/*.form-input::before{
+    content: "/f007";
+    position: absolute;
+    font-family: "FontAwesome";
+    font-size: 30px;
+}*/
+
+/*
+   button class: setting a background color to the button and setting a nice form 
+*/
+.buton{
+    padding: 15px 30px;
+    
+    border-radius: 40px;
+    border: none;
+    background-color: purple;
+    width: 50px;
+    text-align: center;
+    margin-left: 150px;
+}
+/*
+*
+* label class: setting the tex in the label to red
+*/
+.labelForm{
+    color: red;
+}
