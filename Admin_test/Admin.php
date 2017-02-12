@@ -9,7 +9,7 @@
 /**
  * Description of Admin
  *
- * @author Beheerders
+ * @author LAndry Francky
  */
 //include './Connector.php';
 //require_once './Connector.php';
