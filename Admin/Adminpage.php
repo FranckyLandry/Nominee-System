@@ -4,9 +4,6 @@ session_start();
 require_once './Admin.php';
 require_once './core/phpmailer.php';
 
-//session_start();
-//if session is not set this will redirect to login page
-//
 
 
 $admin = new Admin();

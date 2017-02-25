@@ -4,7 +4,7 @@
  * Description of user this will handle to connect the user with the database
  * and the login and logout
  *
- * @author Francky Ngabo
+ * @author Francky 
  */
 
 require_once 'Connector.php';

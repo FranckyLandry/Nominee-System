@@ -6,7 +6,7 @@
 /**
  * Description of User
  * User Class 
- * @author Francky Ngabo
+ * @author Francky 
  */
 
 require_once './core/Connector.php';

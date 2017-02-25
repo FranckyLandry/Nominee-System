@@ -3,7 +3,7 @@
  * Description of connector
  * This class will make the connection to the database and 
  * the connection on the server
- * @author Francky Ngabo
+ * @author Francky 
  */
 
 

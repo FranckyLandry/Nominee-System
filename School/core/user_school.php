@@ -3,7 +3,7 @@
 /**
  * Description of Institute
  *
- * @author Francky Ngabo
+ * @author Francky 
  */
 
 
@@ -11,7 +11,6 @@
 
 require_once 'Connector.php';
 
-//require_once '/phpmailer.php';
 
 class user_school {
 

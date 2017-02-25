@@ -4,12 +4,11 @@ session_start();
 /**
  * Description of Admin
  *
- * @author Beheerders
+ * @author Francky
  */
-//include './Connector.php';
-//require_once './Connector.php';
+
 require_once './core/Connector.php';
-//include_once './core/phpmailer.php';
+
 
 class Admin {
     
