@@ -1,14 +1,17 @@
 <?php
-
-require_once './authenti.php';
-
+require 'core/init.php';
     $label_info = NULL;
 
         if (isset($_POST['savedata'])) {
-
-                $new_user=new authenti();
-              
+            
+           
+            
+                $new_user = new authenti();
+                
+                
+//                die('sjfhjkosdhjhg');
                 $schoolname = $new_user->cleanData(filter_var($_POST['f1-School-name'],FILTER_SANITIZE_STRING)) ;
+                $address_to_send =$new_user->cleanData(filter_var($_POST['address'],FILTER_SANITIZE_STRING));
                 
                 $country = $new_user->cleanData(filter_var($_POST['f1-School-Country'],FILTER_SANITIZE_STRING)) ;
                 
@@ -17,11 +20,11 @@ require_once './authenti.php';
                 $school_password = $new_user->cleanData(filter_var($_POST['f1-School-pasword'],FILTER_SANITIZE_STRING));
                 
                 $contact_email=$_POST['f1-email'];
-                                        
-                $register = $new_user->register($schoolname, $country, $contact_pers, $school_password,$contact_email);
+                                       
+                $register = $new_user->register($schoolname, $country, $contact_pers, $school_password,$contact_email,$address_to_send);
                 
                 if ($register) {
-                       
+                    
                         header('Location: LogForeign.php');
                         
                 }  else {
@@ -72,11 +75,6 @@ require_once './authenti.php';
         <!--<link rel="stylesheet" href="BootstrapDownload/bootstrap-3.3.7-dist/css/">-->
 
 
-        <!-- CSS -->
-        <!--<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500">-->
-
-        <!-- replacement for localhost purposes-->
-        <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"-->
         <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
 
 
@@ -140,10 +138,10 @@ require_once './authenti.php';
 
                         <form role="form" action="Registration.php" method="post" class="f1"  enctype="multipart/form-data">
 
-                            <h3 style= color:#663366>University form </h3>
+                            <h3 style= color:#663366>University form. After registering an E-mail will be send to you. </h3>
                             <p>Fill in the form</p>
-                            
-                           <p style="color: red"><?php echo $label_info ?></p>
+
+                            <p style="color: red"><?php echo $label_info ?></p>
                             <div class="f1-steps">
 
 
@@ -152,12 +150,12 @@ require_once './authenti.php';
                                     <p>User Information</p>
                                 </div>
 
-
                             </div>
+                            
 
                             <fieldset>
                                 <!--<h4>User Login:</h4>-->
-                                
+
                                 <div class="form-group">
                                     <label class="sr-only" for="f1-School-name">School Name</label>
                                     <input type="text" name="f1-School-name" placeholder="School Name..." class="f1-School-name form-control" id="f1-School-name">
@@ -173,27 +171,34 @@ require_once './authenti.php';
                                     <label class="sr-only" for="f1-Contact-name">Contact Person name</label>
                                     <input type="text" name="f1-Contact-Person-name" placeholder="Contact Person name..." class="f1-Contact-Person-name form-control" id="f1-Contact-Person-name">
                                 </div>
+                                
+                                <div class="form-group">
+                                    <textarea rows="4" name="address" cols="64" placeholder="Address Fontys will send the transcript after the student has finished ..."></textarea>
+                                </div>
 
                                 <div class="form-group">
                                     <label class="sr-only" for="f1-email">Email</label>
                                     <input type="email" name="f1-email" placeholder="Email..." class="f1-email form-control" id="f1-email">
                                 </div>
-                                
-                                 <div class="form-group">
+
+                                <div class="form-group">
                                     <label class="sr-only" for="f1-password">School Country</label>
                                     <input type="text" name="f1-School-pasword" placeholder="password..." class="f1-School-password form-control" id="f1-School-password"> 
                                 </div>
 
+
+
                                 <div class="f1-buttons">
                                     <button name="savedata" type="submit" style="color: #663366" class="btn btn-default">SAVE</button>
-                                </div>
-                              
-                                 
+                                 </div>
+                                
+                                
+
                             </fieldset>
 
 
                         </form>
-                      
+                      </div>
                     </div>
                 </div>
 

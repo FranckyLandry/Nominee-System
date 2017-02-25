@@ -1,27 +1,24 @@
-
 <?php
-session_start();
-require_once './authenti.php';
-
+require 'core/init.php';
 
         $label_error= NULL;
 
-        if (!isset($_SESSION['user_login'])) {
+       
+        if (!isset( $_SESSION['user_name'])) {
+          
                         header('Location: LogForeign.php');
         } else {
-            
+           
                         $institute = new authenti();
 
-
                         $date1 = $institute->getuser_class()->deadLine_date();
-
                         $date_form = date("m,d,Y", strtotime($date1));
                         $semester1 = '';
                         $semester2 = '';
 
 
             if (isset($_POST['submit'])) {
-                
+                 
                         $student_first_name = $institute->cleanData(filter_var($_POST['f1-first-name']), FILTER_SANITIZE_STRING);
                         $student_last_Name  = $institute->cleanData(filter_var($_POST['f1-last-name']), FILTER_SANITIZE_STRING);
                         $student_email      = $institute->cleanData(filter_var($_POST['f1-email']), FILTER_SANITIZE_STRING);
@@ -52,72 +49,79 @@ require_once './authenti.php';
                             $label_error = "AN EROOR APPEARED,PLEASE SELECT A PDF FILE";
                 } else {
                     
-                            $institute->getuser_class()->moveToFolder($prof_english_file, $prof_transcript_file);
+                     $institute->getuser_class()->moveToFolder($prof_english_file, $prof_transcript_file);
                     
-                            
-                            $contatct_email         = $_SESSION['user_login'];
-                            $array_info_school      = $institute->getuser_class()->get_schoolInfo($_SESSION['user_login']);
+                          
+
+                            $folder='../Uploads/';
+                            $contatct_email         = $_SESSION['user_name'];
+                            $array_info_school      = $institute->getuser_class()->get_schoolInfo($_SESSION['user_name']);
                             
                                     $school_name    = $array_info_school['school_name'];
                                     $country        = $array_info_school['country'];
                                     $contact_name   = $array_info_school ['contact_perso_name'];
+                                    $SchoolAddress  = $array_info_school ['address_to_send'];
                             
                             
-                            
+                            $coordinator_email = $institute->getuser_class()->get_Email_Tosend_To();
 
                             $institute->getuser_class()->saveStudentInfo($student_first_name, $student_last_Name, $student_email, 
                                                                          $school_name,$country,$contact_name, $contatct_email, 
                                                                          $file_Proof_english_name, $file_transcript_score_name, $semester1, $semester2);
                             
-//                                $email = new PHPMailer();
-//                                $email->From = 'testNominee@ya.com';
-//                                $email->FromName = 'Nominee System';
-//                                $email->Subject = 'New Nominee';
-//
-//                                $email->Body = "Dear Coordinator,\n\n";
-//                                $email->Body.="Here is information about a Potential student:\n\n";
-//                                $email->Body.="School Information:\n";
-//                                $email->Body.="School Name:      " . $school_name . "\n";
-//                                $email->Body.= "School Country:  " . $country . "\n";
-//                                $email->Body.= "School Contact : " . $contact_name . "\n\n";
-//
-//                                $email->Body.="Student Information:\n";
-//                                $email->Body.="Student Name:        " . $student_first_name . "\n";
-//                                $email->Body.= "Student Last Name:  " . $student_last_Name . "\n";
-//                                $email->Body.= "Student E-mail :    " . $student_email . "\n\n";
-//
-//
-//                                $email->Body.= "\n\nPrograms Semester 1: " . "\n";
-//                                $email->Body.= " " . $semester1 . "\n";
-//
-//                                $email->Body.= "\n\nPrograms Semester 2: " . "\n";
-//                                $email->Body.= " " . $semester2 . "\n";
-//
-//
-//
-//                                $email->Body.="\n\n Kind Regards \nNominee Team";
-//
-//                            $email->AddAddress($institute->get_Email_Tosend_To());
-//
-//                            $folder1    = '../Uploads/' . $file_Proof_english_name;
-//                            $folder2    = '../Uploads/' . $file_transcript_score_name;
-//
-//
-//                            $email->AddAttachment($folder1, "" . $file_Proof_english_name);
-//                            $email->addAttachment($folder2, "" . $file_transcript_score_name);
-//                            $tryi = $email->Send();
-//                            if (!$tryi) {
-//                                echo $email->ErrorInfo;
-//                            }else{
+                            $email_object = new PHPMailer();
+                            
+                        
+                            $email_object->From = 'Nominee@noreply.com';
+                            $email_object->FromName = 'Nominee System';
+                            $email_object->Subject = 'New Nominee Student';
+                            
+                            $email_object->Body = "Dear Coordinator,\n\n";
+                            $email_object->Body.="Here is information about a Potential student:\n\n";
 
-                             $label_error="The Student is successfully Nominated";
-//                            $session_unset = session_unset();
-//                            $answer = session_destroy();
-//
+                            $email_object->Body.="School Information :\n";
+                            $email_object->Body.="School Name:              " . $school_name . "\n";
+                            $email_object->Body.="School Country:           " . $country . "\n";
+                            $email_object->Body.="School Contact:           " . $contact_name . "\n";
+                            $email_object->Body.="School Contact email:     " . $contatct_email . "\n";
+                            $email_object->Body.="School Address:           " . $SchoolAddress . "\n\n";
+                            
+                            
+                            $email_object->Body.="Student Information :\n";
+                            $email_object->Body.="Student First Name:       " . $student_first_name . "\n";
+                            $email_object->Body.="Student Last Name:        " . $student_last_Name . "\n";
+                            $email_object->Body.="Student E-mail:           " . $student_email . "\n";
+                            
+                            
+                            $email_object->Body.="Programs Chosen :\n";
+                            $email_object->Body.="Semester 1:     " . $semester1 . "\n";
+                            $email_object->Body.="Semester 2:     " . $semester2 . "\n";
+
+                            
+                            $email_object->Body.="\n\n Kind Regards \nNominee Team";
+                            
+                            $a = $email_object->AddAddress($coordinator_email);
+                            
+                            
+                            $email_object->AddAttachment($folder.$file_Proof_english_name, "" . $file_Proof_english_name);
+                            
+                             $email_object->addAttachment($folder.$file_transcript_score_name, "" . $file_transcript_score_name);
+                            
+                            $send = $email_object->Send();
+                        
+                            
+                            if (!$send) {
+                                var_dump($a);
+                                echo $email->ErrorInfo;
+                            }else{
+
+                            $label_error = "The Student is successfully Nominated";
+
+
 //                            header('Location: LogForeign.php');
 
-//                    }
-
+                        }
+                   
                 }
             }
         }
@@ -244,10 +248,6 @@ require_once './authenti.php';
                                     <div class="f1-step-icon"><i class="fa fa-key"></i></div>
                                     <p>Security Key</p>
                                 </div>
-                                <!--                                <div class="f1-step active">
-                                                                    <div class="f1-step-icon"><i class="fa fa-bank"></i></div>
-                                                                    <p>School information</p>
-                                                                </div>-->
 
                                 <div class="f1-step active ">
                                     <div class="f1-step-icon"><i class="fa fa-bank"></i></div>
@@ -308,14 +308,11 @@ require_once './authenti.php';
 
                                         </div>
                                     </div>
-
-
-
                                     <div class="col-sm-4">
                                         <h4>SEMESTER 2  .....</h4> 
                                         <div class="form-group">
                                             <select class="btn" name="semester2">  
-                                                <option name='semester2' value=''>NO SELECTION</option>;
+                                                <option name='semester2' value='NO SELECTION'>NO SELECTION</option>;
                                                 <?php
                                         $institute->getuser_class()->retrieveProgram_s2($date1);
                                                 ?>

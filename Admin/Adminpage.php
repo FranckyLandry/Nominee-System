@@ -2,6 +2,7 @@
 session_start();
 
 require_once './Admin.php';
+require_once './core/phpmailer.php';
 
 //session_start();
 //if session is not set this will redirect to login page
@@ -68,17 +69,17 @@ $lable_info = '';
 
 
 
-                $lable_info = "PERIODE, PROGRAMS AND SECURITY KEY WAS SAVED!";
+                $lable_info = "PERIODE AND PROGRAMS WAS SAVED!";
 
         }
-        if (!empty($admin_passowrd)) {
+        if (!empty($admin_passowrd)|| (ctype_space($admin_passowrd))) {
 
                 $pass_update = $admin->update_Admin_Password($admin_passowrd);
             
                 if($pass_update){
+                  
                     
-                        $lable_info .= "\nTHE  ADMIN PASSWORD WAS UPDATED AND AN EMAIL WAS SEND! ";
-                        
+                                $lable_info .= "\nTHE  ADMIN PASSWORD WAS UPDATED! ";    
                 }else{
                     
                         $lable_info .= "\nAN ERROR OCCURE, THE  ADMIN PASSWORD WAS NOT UPDATED! ";

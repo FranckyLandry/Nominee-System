@@ -15,6 +15,7 @@ class connector {
      * servername->as the Name of the server
      */
     private $servername = "localhost";
+     
     
     /*
      * Fields
@@ -22,17 +23,20 @@ class connector {
      */
     private $root = "root";
     
+    
     /*
      * Fields
      * password->as the password to the database
      */
     private $password = "";
     
+    
     /*
      * Fields
      * dbname->as the name of the database
      */
-    private $dbname = "mydb";
+    private $dbname = "database_name";
+    
     /*
      * Fields
      * conn->as the connection  to the server
@@ -57,7 +61,7 @@ class connector {
             
         } catch (Exception $ex) {
             
-            echo "Connection error: " . $ex->getMessage();
+//            echo "Connection error: " . $ex->getMessage();
 
         }
         return $this->conn;

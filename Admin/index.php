@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <!--
 To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
@@ -19,6 +19,12 @@ require_once './User.php';
 
 $label = NULL;
 
+                    /*
+                     * Creating user object
+                     */
+
+                    $user=new User();
+
   if (isset($_POST['logout'])) {
       
     unset($_SESSION['user']);
@@ -38,11 +44,7 @@ $label = NULL;
                     $pass=  trim($pass); 
                     $pass=  strip_tags($pass);
                     $pass=htmlspecialchars($pass);
-                    /*
-                     * Creating user object
-                     */
-
-                    $user=new User();
+                    
                     /*
                      * calling the login function
                      */
@@ -58,7 +60,18 @@ $label = NULL;
                     }
 
                   }
-        
+                  
+                  if (isset($_POST['reset_pass'])) {
+                      $forgot_pass = $user->forgot_pass();
+                      if ($forgot_pass) {
+                          
+                          $label = "An e-mail has been sent ";
+                      }else{
+                          $label = "An error occure please try again ";
+                      }
+    
+                }
+                  
                   if (isset($_POST['logout'])) {
                        
                       $_SESSION['user_login'] = session_destroy(); 
@@ -105,12 +118,18 @@ $label = NULL;
                     <div class="form-input">
                         <input type="password" name="password" required="" placeholder="password">
                     </div>
-                    
-                    <div >
+<!--<div class="form-input">-->
+                   
+               <!--</div>-->
+               
+                    <div>
                         <button type="submit" class="btn btn-default" name="login-button" >Login</button>
-                    </div>
-                    
+                    </div>   
                </form>
+           <form action="index.php" method="POST">   
+            <label style="color: purple">Forgot Password?</label>
+            <button name="reset_pass" type="submit" class="btn btn-link">Click here to reset</button>
+           </form>
            
            
            

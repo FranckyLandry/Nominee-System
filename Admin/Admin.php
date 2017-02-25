@@ -1,36 +1,24 @@
 <?php
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+session_start();
 
 /**
  * Description of Admin
  *
- * @author LAndry Francky
+ * @author Beheerders
  */
 //include './Connector.php';
 //require_once './Connector.php';
 require_once './core/Connector.php';
-include_once './core/phpmailer.php';
+//include_once './core/phpmailer.php';
 
 class Admin {
     
 //    private $auth_conn;
     
     private $semester1;
-    private $semester2;
-    private $Sql_Insert_s1;
-    private $Sql_Insert_s2;
-    private $Sql_Upadate_EnDate_Coordinator;
-    private $sql_Security_Key;
-    private $security_Key;
+   
     private $periode;
-    private $connect;
-    private $Sql_ResetEmail;
-    private $sql_Update_Coordinator_Pass;
+   
     
     
     
@@ -174,7 +162,6 @@ class Admin {
         
          try{
              
-             
                 $new_password = password_hash($pass, PASSWORD_DEFAULT);
                 $current_mail = $this->current_Email();
                 
@@ -189,40 +176,23 @@ class Admin {
                                                 $stmt->bindparam(":pass", $new_password);
                                                 $stmt->bindparam(":currentmail", $current_mail);
                                                 $stmt->execute();
-                                        return TRUE;
-                                }else{
+                                                
+                                    
+                       
+
+                        
+                       
+                            
+                                   return TRUE;
+                        
+                    }else{
                                    return FALSE;
                                 }
          } catch (Exception $ex) {
                 return FALSE;
          }
        
-         
-//         $this->sql_Update_Coordinator_Pass = "UPDATE `coordinator` SET `password_Admin`='$pass'";
-//
-//        $result = mysqli_query($this->connect->getConnection(), $this->sql_Update_Coordinator_Pass);
-//
-//        if (!$result) {
-//            die("Not abble to udpdate coordinator password: " );
-//        }else{
-//            $email = new PHPMailer();
-//            $email->From = 'testNominee@ya.com';
-//            $email->FromName = 'Nominee System';
-//            $email->Subject = 'Admin Password';
-//            
-//            $email->Body = "Dear Coordinator,\n\n";
-//            $email->Body.="Here is the new PASSWORD :\n\n";
-//            $email->Body.="ADMIN PASSWORD:      " . $pass . "\n";
-//            
-//            $email->AddAddress($this->current_Email());
-//            $trys =$email->send();
-//            if (!$trys) {
-//                echo 'Not sent';
-//            }  else {
-//                echo 'Sent';
-//            }
-            
-//        }
+  
     }
 
     public function current_Email() {

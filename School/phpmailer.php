@@ -656,6 +656,7 @@ class PHPMailer
      */
     public function __construct($exceptions = null)
     {
+        
         if ($exceptions !== null) {
             $this->exceptions = (boolean)$exceptions;
         }

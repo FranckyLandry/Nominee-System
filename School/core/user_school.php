@@ -1,23 +1,21 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of Institute
  *
  * @author Francky Ngabo
  */
-include '/phpmailer.php';
-//require_once './Connector.php';
-require_once '/Connector.php';
+
+
+
+
+require_once 'Connector.php';
+
+//require_once '/phpmailer.php';
 
 class user_school {
 
-    private  $schoolName, $Sql_Insert, $conn, $filesize,$filetype,$filename,$filetemp, $Sql_selectEmail;
+    private  $schoolName,  $conn, $filesize,$filetype,$filename,$filetemp, $Sql_selectEmail;
 
 
     
@@ -49,49 +47,12 @@ class user_school {
      
      
      
-     
-//    public function set_Label($value) {
-//         $this->lbl_Value=$value;
-//     }
-     
-//    public function get_LabelValue(){
-//         
-//         return $this->lbl_Value;
-//     }
-     
-//    public function set_country($param) {
-//        $this->country = $param;
-//    }
-
-//    public function set_userName($param) {
-//        $this->username = $param;
-//    }
-
-//    public function set_pwd($param) {
-//        $this->password = $param;
-//    }
-
-//    public function set_email($param) {
-//        $this->email = $param;
-//    }
-
-//    public function set_schoolName($param) {
-//        $this->schoolName = $param;
-//    }
-
-//    public function set_contactpersonName($param) {
-//        $this->contactpersonName = $param;
-//    }
-
-//    public function get_country() {
-//        return $this->country;
-//    }
 
     public function get_schoolInfo($email_contatct_pers) {
         
                 try{
                     
-                    $stmt =  $this->conn->prepare("SELECT  school_name,country,contact_perso_name"
+                    $stmt =  $this->conn->prepare("SELECT  school_name,country,contact_perso_name,address_to_send"
                                                  . " FROM institute WHERE email_contact_pers=:umail");
                        
                     $stmt->execute(array(':umail' => $email_contatct_pers));
@@ -108,33 +69,35 @@ class user_school {
         return $this->schoolName;
     }
     
-//    public function set_security($security){
-//        $security =  filter_var($security,FILTER_SANITIZE_STRING);
-//    }
 
-//    public function get_contactpersonName() {
-//        return $this->contactpersonName;
-//    }
-//
-//    public function get_contactEmail() {
-//        return $this->email;
-//    }
 
     
     public function get_Email_Tosend_To() {
-        $this->Sql_selectEmail="SELECT `email_coordinator` FROM `coordinator`";
         
-         $result = mysqli_query($this->con->getConnection(),$this->Sql_selectEmail);
-         
-          if (!$result) {
-            die("Not be abble to querry");
-        }
-         $email = mysqli_fetch_array($result);
-        foreach ($email as $value) {
-            return $value;
-        }
-        $this->con->closeConnection();
+         try
+		{
+			$stmt = $this->conn->prepare("SELECT email_coordinator FROM coordinator");
+                       
+                        $stmt->execute();
+                        $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($userRow) {
+                            
+                            return $userRow['email_coordinator'];
+                        }else{
+                            return FALSE;
+                        }    
+		} catch(PDOException $e){
+                    
+			echo $e->getMessage();
+		}
+                    
+                return  FALSE;
         
+        
+        
+        
+
     }
     
    
@@ -142,7 +105,7 @@ class user_school {
         
         try
 		{
-			$stmt = $this->db->prepare("SELECT  username, password FROM user_type WHERE username=:umail");
+			$stmt = $this->conn->prepare("SELECT  username, password FROM user_type WHERE username=:umail");
                        
                         $stmt->execute(array(':umail' => $umail));
                         $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -160,18 +123,7 @@ class user_school {
                 return  FALSE;
     }
     
-//    public function SaveSchoolInfo($_school_name, $_country, $_contactpersonName, $_email) {
-//
-//
-//        $this->Sql_Insert = "INSERT INTO `institute` (`schoolname`,`country`,`contactpersoName`,`email`) VALUES ('$_school_name','$_country','$_contactpersonName','$_email')";
-//
-//        $result = mysqli_query($this->con->getConnection(),$this->Sql_Insert);
-//
-//        if (!$result) {
-//            die("Not be abble to querry" );
-//        }
-//        $this->con->closeConnection();
-//    }
+
 
     public function saveStudentInfo($firstName, $lastName, $student_email,$school_name,$country,$contact_name,
                                     $contact_email,$proof_english,$proof_transcritp,$semester1,$semester2) {
@@ -179,7 +131,7 @@ class user_school {
         try{
             
             $stmt =  $this->conn->prepare("INSERT INTO student(firstname,lastname,student_email,schoolname,country,contactperson,contact_email,
-                                              proof_Englsih_ref,transcript_ref,semester1,semester2)
+                                              proof_english_ref,transcript_ref,semester1,semester2)
                                               VALUES(:first, :last, :email,:schoolname,:country,:name_contact,:contact_email,:proof_englis,:transcript_ref,
                                               :semester1,:semester2)");
             
@@ -216,7 +168,7 @@ class user_school {
         try
 		{       
                        $deadline=NULL;
-			$stmt = $this->conn->prepare("SELECT `submition_deadline` FROM coordinator ");
+			$stmt = $this->conn->prepare("SELECT submition_deadline FROM coordinator");
 			$stmt->execute();
                         
                         $row_deadline= $stmt->fetch(PDO::FETCH_ASSOC);
@@ -296,7 +248,7 @@ class user_school {
                     case "pdf":
                          return TRUE;
 
-                     case "": // Handle file extension for files ending in '.'
+                     case $param.empty(""): // Handle file extension for files ending in '.'
 
                         return FALSE;
                     case NULL: // Handle no file extension

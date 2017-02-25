@@ -1,6 +1,4 @@
-<?php
-
-
+<?php 
 
 /**
  * Description of user this will handle to connect the user with the database
@@ -9,20 +7,22 @@
  * @author Francky Ngabo
  */
 
-require_once './core/Connector.php';
-require_once './core/user_school.php';
-require_once './core/phpmailer.php';
+require_once 'Connector.php';
 
+require_once 'user_school.php';
+
+require_once 'phpmailer.php';
+ 
 class authenti {
     
     /*
      * the connection field
      */
     private $auth_conn;
-    
-    public $labe_error = " ";
-    
-    public $send_to_newpass ;
+    public $send_to_newpass;
+    public $labe_error;
+
+
 
     public function __construct() {
 
@@ -33,7 +33,7 @@ class authenti {
     }
 
       public function getuser_class() {
-        
+     
                 $db_class=new user_school();
                 return $db_class;
     }
@@ -52,14 +52,14 @@ class authenti {
      * ($schoolname, $country, $contact_pers, $school_password,$contact_email);
      */
     
-    public function register($s_Name, $s_Country, $s_contact_persName, $s_Pass, $s_email) {
+    public function register($s_Name, $s_Country, $s_contact_persName, $s_Pass, $s_email,$address_to_send) {
 
         try {
             
             $stmt = $this->auth_conn->prepare("SELECT username FROM user_type WHERE username=:uname");
 			$stmt->execute(array(':uname'=>$s_email));
 			$userRow=$stmt->fetch(PDO::FETCH_ASSOC);
-                        
+                       
                         if (!empty($userRow)) {
                             
                             $this->labe_error="E-Mail already exist";
@@ -69,33 +69,72 @@ class authenti {
             
             $new_password = password_hash($s_Pass, PASSWORD_DEFAULT);
 
-            
+            $tempp = NULL;
             $stmt = $this->auth_conn->prepare("INSERT INTO user_type(username,password,category,temp_pass)
-                                            VALUES(:uname, :upass, 'exchange','')");
+                                            VALUES(:uname, :upass, 'exchange',:temp)");
 			$stmt->bindparam(":uname", $s_email);
 			$stmt->bindparam(":upass", $new_password);
+                        $stmt->bindparam(":temp", $tempp);
                         
-			$stmt->execute();
-
+			$executed1 = $stmt->execute();
+                        
+                        if (!$executed1) {
+                             $this->labe_error="An Error occure please try again.";
+                            return FALSE;
+                        }
                         
             
             
-            $stmt = $this->auth_conn->prepare("INSERT INTO institute(school_name,country,contact_perso_name,password_university,email_contact_pers)"
-                                         . " VALUES(:s_Names, :s_Country, :s_contact_persName,:s_Pass,:s_email)");
+            $stmt = $this->auth_conn->prepare("INSERT INTO institute(school_name,country,contact_perso_name,password_university,email_contact_pers,address_to_send)"
+                                         . " VALUES(:s_Names, :s_Country, :s_contact_persName,:s_Pass,:s_email,:address)");
                          
                         $stmt->bindparam(":s_Names", $s_Name);
                         $stmt->bindparam(":s_Country", $s_Country);
                         $stmt->bindparam(":s_contact_persName",$s_contact_persName);
                         $stmt->bindparam(":s_Pass",$new_password);
                         $stmt->bindparam(":s_email",$s_email);
+                        $stmt->bindparam(":address",$address_to_send);
                         
-                        $stmt->execute();
+                       $executed =  $stmt->execute();
+                       
+                        if ($executed) {
+                            
+                        $email_object = new PHPMailer();
+                        
+                        $email_object->From = 'Nominee@noreply.com';
+                        $email_object->FromName = 'Nominee System';
+                        $email_object->Subject = 'Register';
+
+                        $email_object->Body = "Dear $s_contact_persName,\n\n";
+                        $email_object->Body.="You are successefully register, you can now start Nominating students:\n\n";
+                        
+                        $email_object->Body.="UserName info :\n";
+                        $email_object->Body.="User name:      " . $s_email . "\n\n\n";
+                        
+                        $email_object->Body.="Password info :\n";
+                        $email_object->Body.="Password:      " . $s_Pass . "\n\n\n";
+
+
+                       
+                        $email_object->Body.="\n\n Kind Regards \nNominee Team";
+
+                        $email_object->AddAddress($s_email);
+                        $send = $email_object->Send();
+                        
+                        if(!$send){
+                        
+                            return FALSE;
+                        }
+                    }  
+                        
                         
                         return $stmt;
  
             
         } catch (Exception $ex) {
-                        $this->labe_error="An Error occure! Please try again";
+            var_dump($ex);
+                           /*  Better not to print for security issues      */
+//                                echo $ex->getMessage();
 
         }
     }
@@ -123,17 +162,19 @@ class authenti {
                                         $userRow['temp_pass'] = NULL;
                                     }
 
-                                        $_SESSION['user_login']=$umail;
-                                        return TRUE;
+                                        $_SESSION['user_name']=$umail;
+                                        
+                                         return TRUE;
                                 }  
                                 
                             }else{
-                                $_SESSION['user_login']=$userRow['username'];
-                                
+
+                                $_SESSION['user_name']=$userRow['username'];
                                 $this->send_to_newpass= TRUE;
                         }
-		} catch(PDOException $e){
-                            $this->labe_error="An Error occure! Please try again";
+		} catch(PDOException $ex){
+                               /*  Better not to print for security issues      */
+//                                echo $ex->getMessage();
 
 		}
 	}
@@ -143,8 +184,8 @@ class authenti {
       */
     public function doLogout(){
         
-		session_destroy();
-		unset($_SESSION['username']);
+//		session_destroy();
+		unset($_SESSION['user_name']);
                 header('Location: LogForeign.php');
 		
     }
@@ -154,15 +195,15 @@ class authenti {
             try{
                 
                     //check first if the email is the one
-                   $stmt = $this->auth_conn->prepare("SELECT username FROM user_type WHERE username=:current");
+                   $stmt = $this->auth_conn->prepare("SELECT username,temp_pass FROM user_type WHERE username=:current");
                        
                         $stmt->execute(array(':current' => $email));
                         $check_mail = $stmt->fetch(PDO::FETCH_ASSOC);
-                        
-                        if ($check_mail) {
-                            
+
+                        if ($check_mail && $check_mail['temp_pass']== $old_pass) {
+                          
                             $tem_pass = NULL;
-                                $mail=$check_mail['username'];
+                                $mail = $check_mail['username'];
                                 $new_password = password_hash($new_pass, PASSWORD_DEFAULT);
 
                                 $stmt = $this->auth_conn->prepare("UPDATE institute SET password_university = :pass WHERE email_contact_pers = :currentmail");
@@ -182,7 +223,8 @@ class authenti {
                                 return FALSE;
                         }
                 } catch (Exception $ex) {
-                                $this->labe_error="An Error occure! Please try again";
+                                /*  Better not to print for security issues      */
+//                                echo $ex->getMessage();
 
                 }
                    
@@ -204,26 +246,25 @@ class authenti {
 
                     if (!empty($new_pass)) {
 
-//
-//                        $email_object = new PHPMailer();
-//                        $email_object->From = 'Nominee@noreply.com';
-//                        $email_object->FromName = 'Nominee System';
-//                        $email_object->Subject = 'Password Request';
-//
-//                        $email_object->Body = "Dear $mail,\n\n";
-//                        $email_object->Body.="You requested a new password:\n\n";
-//                        $email_object->Body.="Password request:\n";
-//                        $email_object->Body.="New Password:      " . $new_pass . "\n\n\n";
-//
-//
-//                        $email_object->Body.="If for any reason it is not your request just ignore this email and your email will not be updated:\n";
-//                        $email_object->Body.="\n\n Kind Regards \nNominee Team";
-//
-//                        $email_object->AddAddress($mail);
-//                        $send = $email_object->Send();
+                        $email_object = new PHPMailer();
+                        $email_object->From = 'Nominee@noreply.com';
+                        $email_object->FromName = 'Nominee System';
+                        $email_object->Subject = 'Password Request';
+
+                        $email_object->Body = "Dear $mail,\n\n";
+                        $email_object->Body.="You requested a new password:\n\n";
+                        $email_object->Body.="Password request:\n";
+                        $email_object->Body.="New Password:      " . $new_pass . "\n\n\n";
+
+
+                        $email_object->Body.="If for any reason it is not your request just ignore this email and your password will not be updated:\n";
+                        $email_object->Body.="\n\n Kind Regards \nNominee Team";
+
+                        $email_object->AddAddress($mail);
+                        $send = $email_object->Send();
 
                         /* @var $send to check if the e-mail was send */
-//                        if ($send) {
+                        if ($send) {
                             
                              $stmt = $this->auth_conn->prepare("UPDATE user_type SET temp_pass = :pass WHERE username = :currentmail");
                                         $stmt->bindparam(":pass", $new_pass);
@@ -232,21 +273,24 @@ class authenti {
                             
                             return TRUE;
                             
-//                        } else {
-//                            $this->labe_error="An Error occure! Please try again";
-//                            return FALSE;
-//                        }
+                        } else {
+                            $this->labe_error="An Error occure! Please try again";
+                            return FALSE;
+                        }
                     }
                 } else {
                     $this->labe_error="An Error occure with the provided e-mail! Please try again";
                     return FALSE;
                 }
             } catch (Exception $ex) {
-
-                echo $ex->getMessage();
+                /*  Better not to print for security issues      */
+//                echo $ex->getMessage();
             }
     }
-
+    
+    /*
+     * Generator of random Password
+     */
     function random_Password_Generator() {
          
                         $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
@@ -259,22 +303,6 @@ class authenti {
                         return implode($pass); //turn the array into a string
     }
             
-    
-//    public function set_NewPass($tempPass) {
-//        
-//              try {
-//                  
-//                   $stmt = $this->auth_conn->prepare("SELECT username FROM user_type WHERE username=:current");
-//
-//                        $stmt->execute(array(':current' => $current_email));
-//                        $check_mail = $stmt->fetch(PDO::FETCH_ASSOC);
-//                  
-//                    
-//                  
-//              } catch (Exception $ex) {
-//                  echo $ex->getMessage();
-//              }
-//                
-//    }
+ 
             
 }

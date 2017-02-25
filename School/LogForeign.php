@@ -1,47 +1,42 @@
-
 <?php
-session_start();
 
-require_once './authenti.php';
-
-
-
+require 'core/init.php';
 
 $auht_user = new authenti();
 
+
 $deadline = $auht_user->getuser_class()->deadLine_date();
-//
 $date_form = date("m,d,Y", strtotime($deadline));
 
 
 $label_error = NULL;
 
-        if (isset($_POST['logout'])) {
-            $auht_user->doLogout();
-        }
-
-
-
         if (isset($_POST['securityKey'])) {
 
-            $emai = $_POST['f1-user-e-mail'];
-
+            $email = $_POST['f1-user-e-mail'];
+            
             $password = $auht_user->cleanData(filter_var($_POST["f1-Security-key"], FILTER_SANITIZE_STRING));
 
-            $doLogin = $auht_user->doLogin($emai, $password);
+            $doLogin = $auht_user->doLogin($email, $password);
             
             if ($doLogin) {
-                
+                     
                     header('Location: institute.php');
+                    exit();
             }elseif ($auht_user->send_to_newpass) {
+                
                         header('Location: new-password.php');
+                        exit();
             } else {
 
-//                    header('Location: LogForeign.php');
+                    
                     $label_error = 'ERROR CREDITIALS INCORRECT';
             }
 
 
+        }
+         if (isset($_POST['logout'])) {
+            $auht_user->doLogout();
         }
 ?>
 

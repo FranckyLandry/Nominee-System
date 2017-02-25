@@ -1,25 +1,34 @@
 <?php
-        require_once './authenti.php';
+        require 'core/init.php';
 
-        $temp_user  =   new authenti();
-        $label_info=NULL;
-        if (isset($_POST['submit'])) {
-            
+             $temp_user_update_pass  =   new authenti();
+             $label_info=NULL;
+             
+             if (isset($_POST['update'])) {
+                 
+                    if(!empty($_SESSION['user_name'])){
 
-                    $email  = $temp_user->cleanData(filter_var($_POST['user-e-mail']), FILTER_SANITIZE_EMAIL);
-                    
-                    if ($temp_user->forgot_pass($email)) {
+                        $old_pass   = $temp_user_update_pass->cleanData(filter_var($_POST['old-password']), FILTER_SANITIZE_STRING);
+                        $new_pass   = $temp_user_update_pass->cleanData(filter_var($_POST['new-password']), FILTER_SANITIZE_STRING);
+                        var_dump($old_pass,$new_pass);
+                        $updated    = $temp_user_update_pass->update_NewPassword($old_pass, $new_pass,$_SESSION['user_name']);
+                        
+                        if ($updated) {
                             
-                            header('Location: LogForeign.php');
+                                    header('Location: institute.php');
+                        }else{
                             
-                    }else{
-                            $label_info="The provided e-mail doesn't mach with the one in our database. Please try again";
-                    }
-        }
-
-
+                                $label_info="An error occure. Please try again! ";
+                        }
+                        
+                 
+                 }else{
+                       $label_info="You are not login !"; 
+                 }
+            }
 
 ?>
+
 
 <html lang="en">
 
@@ -61,7 +70,7 @@
         <link rel="stylesheet" href="BootstrapDownload/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css.map">
         <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
 
-
+       
 
 
         <link rel="stylesheet" href="Institute_Countdownstyle/css.css" >
@@ -107,10 +116,10 @@
                 <div class="row">
                     <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3 form-box">
 
-                        <form role="form" action="forgot-password.php" method="POST" class="f1">
+                        <form role="form" action="new-password.php" method="POST" class="f1">
 
-                            <h3 style= color:#663366>fORGOTTEN YOUR PASSWORD </h3>
-                            <p>The new <strong>password</strong> will be send to your e-mail</p>
+                            <h3 style= color:#663366>New Password </h3>
+                            <!--<p>The new <strong>password</strong> will be send to your e-mail</p>-->
 
                             <div class="f1-steps">
                                 <div class="f1-step active">
@@ -122,21 +131,21 @@
                             </div>
 
                             <fieldset>
-                                <!--<h4>Enter your wished password:</h4>-->
+                                <h4>Enter the password sent to you via e-mail:</h4>
 
                                 <div class="form-group ">
-<!--                                    <input  type="text" value =""  name="new-password" placeholder="New Password..." class="f1-Security-key form-control">
+                                    <input  type="password" value =""  name="old-password" placeholder="Password received via e-mail..." class="f1-Security-key form-control">
                                     
-                                     &nbsp;-->
-                                     <h4>Enter the email your registered with:</h4>
-                                    <input  type="email" value =""  name="user-e-mail" placeholder="Your current E-mail..." class="f1-User-E-mail form-control" id="f1-User-E-mail">
+                                     &nbsp;
+                                     <h4>Enter the new password :</h4>
+                                     <input  type="password" value =""  name="new-password" placeholder="Your new Password..." class="f1-User-E-mail form-control" id="f1-User-E-mail">
                               
                                 </div>
 
                                 &nbsp;
                                 
                                 <div class="f1-buttons">
-                                    <button name="submit" type="submit" class="btn  btn-submit">SUBMIT</button>
+                                    <button name="update" type="submit" class="btn  btn-submit">SUBMIT</button>
                                 </div>
                             </fieldset>
                         </form>
@@ -154,7 +163,8 @@
         <script src="assets/js/jquery.backstretch.min.js"></script>
         <script src="assets/js/retina-1.1.0.min.js"></script>
         <script src="assets/js/scripts.js" defer></script>
-
+       
     </body>
 
 </html>
+
